@@ -1,9 +1,9 @@
-<!HI html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Bible Verse</title>
+    <title>Daily Bible Verse</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
         #verseBox { font-size: 24px; font-weight: bold; margin-top: 20px; }
@@ -11,30 +11,29 @@
 </head>
 <body>
 
-    <h1>Welcome! Your Bible Verse for Today:</h1>
+    <h1>Today's Bible Verse:</h1>
     <div id="verseBox">Loading...</div>
 
     <script>
-        async function fetchRandomVerse() {
+        async function fetchBibleVerse() {
             try {
-                const response = await fetch("https://raw.githubusercontent.com/thiagobodruk/bible/master/json/en_kjv.json");
-                const data = await response.json();
+                const response = await fetch("https://dailyverses.net/random-bible-verse");
+                const text = await response.text();
                 
-                const books = Object.keys(data);
-                const randomBook = books[Math.floor(Math.random() * books.length)];
-                const chapters = Object.keys(data[randomBook]);
-                const randomChapter = chapters[Math.floor(Math.random() * chapters.length)];
-                const verses = Object.values(data[randomBook][randomChapter]);
-                const randomVerse = verses[Math.floor(Math.random() * verses.length)];
+                // Extract the verse using DOM parsing
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(text, 'text/html');
+                let verse = doc.querySelector(".bibleVerse .text")?.innerText || "Verse not found";
+                let reference = doc.querySelector(".bibleVerse .reference")?.innerText || "";
 
-                document.getElementById("verseBox").innerText = `${randomBook} ${randomChapter}: ${randomVerse}`;
+                document.getElementById("verseBox").innerText = verse + " (" + reference + ")";
             } catch (error) {
-                document.getElementById("verseBox").innerText = "Error loading verse.";
-                console.error("Failed to fetch Bible verses:", error);
+                document.getElementById("verseBox").innerText = "Error fetching verse.";
+                console.error("Failed to fetch the Bible verse:", error);
             }
         }
 
-        window.onload = fetchRandomVerse;
+        window.onload = fetchBibleVerse;
     </script>
 
 </body>
